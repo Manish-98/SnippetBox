@@ -38,5 +38,22 @@ public class UserControllerIntegrationTest {
 
             Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         }
+
+        @Test
+        void shouldReturnBadRequestWhenUserNameIsInvalid() {
+            String userRequest = """
+                    {
+                        "name": "Invalid Name!"
+                    }
+                    """;
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            HttpEntity<String> request = new HttpEntity<>(userRequest, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
+
+            Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            Assertions.assertEquals("{\"errorCode\":\"user-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
+        }
     }
 }
