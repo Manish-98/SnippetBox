@@ -13,7 +13,18 @@ java {
     }
 }
 
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+        }
+    }
+}
+
 configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
     compileOnly {
         extendsFrom annotationProcessor
     }
@@ -26,12 +37,34 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    integrationTestImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.18.1'
+}
+
+tasks.register('integrationTest', Test) {
+    description = "Run integration tests"
+    group = "verification"
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+build {
+    dependsOn test
+    dependsOn integrationTest
 }
