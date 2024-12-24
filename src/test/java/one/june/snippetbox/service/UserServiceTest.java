@@ -2,9 +2,9 @@ package one.june.snippetbox.service;
 
 import one.june.snippetbox.common.Utility;
 import one.june.snippetbox.controller.payload.NewUserRequest;
+import one.june.snippetbox.exception.NotFoundException;
 import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +14,11 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -41,9 +44,31 @@ class UserServiceTest {
 
                 UUID userId = userService.createUser(NewUserRequest.builder().name("Some name").build());
 
-                Assertions.assertEquals(mockedUuid, userId);
+                assertEquals(mockedUuid, userId);
                 verify(userRepository, Mockito.times(1)).save(any());
             }
+        }
+    }
+
+    @Nested
+    class GetUser {
+        @Test
+        void shouldReturnUserForGivenId() throws NotFoundException {
+            String userId = "0dcc45b6-7198-401c-85df-10765aac9a57";
+            when(userRepository.findById(userId)).thenReturn(Optional.of(User.builder().name("User name").id(userId).build()));
+
+            User user = userService.getUser(userId);
+
+            assertEquals(User.builder().name("User name").id(userId).build(), user);
+        }
+
+        @Test
+        void shouldThrowNotFoundExceptionIfUserNotFoundForUserId() {
+            String userId = "0dcc45b6-7198-401c-85df-10765aac9a57";
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUser(userId));
+            assertEquals("User not found", exception.getMessage());
         }
     }
 

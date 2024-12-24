@@ -3,6 +3,7 @@ package one.june.snippetbox.service;
 import lombok.AllArgsConstructor;
 import one.june.snippetbox.common.Utility;
 import one.june.snippetbox.controller.payload.NewUserRequest;
+import one.june.snippetbox.exception.NotFoundException;
 import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -19,5 +20,9 @@ public class UserService {
         User newUser = User.builder().id(userId.toString()).name(newUserRequest.getName()).build();
         userRepository.save(newUser);
         return userId;
+    }
+
+    public User getUser(String userId) throws NotFoundException {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

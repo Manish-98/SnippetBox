@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -23,5 +22,12 @@ public class GlobalExceptionHandler {
         log.error("Exception occurred" + exception.getMessage());
         List<String> errors = exception.getBindingResult().getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
         return ErrorResponse.builder().errorCode("user-001").reasons(errors).build();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseBody
+    public ErrorResponse handleNotFoundException(NotFoundException exception) {
+        log.error("Exception occurred" + exception.getMessage());
+        return ErrorResponse.builder().errorCode("user-002").reasons(List.of(exception.getMessage())).build();
     }
 }

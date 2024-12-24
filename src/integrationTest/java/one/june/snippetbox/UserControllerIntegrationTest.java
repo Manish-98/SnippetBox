@@ -1,7 +1,7 @@
 package one.june.snippetbox;
 
+import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerIntegrationTest {
@@ -33,8 +37,15 @@ public class UserControllerIntegrationTest {
     }
 
     @Autowired
-    TestRestTemplate restTemplate;
+    private TestRestTemplate restTemplate;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
 
     @Nested
     class NewUser {
@@ -51,7 +62,7 @@ public class UserControllerIntegrationTest {
 
             ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
 
-            Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(HttpStatus.OK, response.getStatusCode());
         }
 
         @Test
@@ -67,8 +78,34 @@ public class UserControllerIntegrationTest {
 
             ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
 
-            Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            Assertions.assertEquals("{\"errorCode\":\"user-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals("{\"errorCode\":\"user-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
+        }
+    }
+
+    @Nested
+    class GetUser {
+        @Test
+        void shouldGetUserForGivenId() {
+            userRepository.save(
+                    User.builder()
+                            .id("0dcc45b6-7198-401c-85df-10765aac9a57")
+                            .name("Some user")
+                            .build()
+            );
+
+            ResponseEntity<User> response = restTemplate.getForEntity("/users/0dcc45b6-7198-401c-85df-10765aac9a57", User.class);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(
+                    User.builder()
+                            .id("0dcc45b6-7198-401c-85df-10765aac9a57")
+                            .name("Some user")
+                            .createdAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0))
+                            .updatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0))
+                            .build(),
+                    response.getBody()
+            );
         }
     }
 }
