@@ -1,25 +1,40 @@
 package one.june.snippetbox;
 
+import one.june.snippetbox.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerIntegrationTest {
-    @Autowired
-    MongoTemplate mongoTemplate;
+    private static final MongoDBContainer mongoDBContainer =
+            new MongoDBContainer("mongo:6.0.4");
+
+    static {
+        mongoDBContainer.start(); // Start the container before all tests
+    }
+
+    @DynamicPropertySource
+    static void configureMongoProperties(DynamicPropertyRegistry registry) {
+        // Override Spring Boot's MongoDB properties with Testcontainers' connection details
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
 
     @Autowired
     TestRestTemplate restTemplate;
+
 
     @Nested
     class NewUser {
