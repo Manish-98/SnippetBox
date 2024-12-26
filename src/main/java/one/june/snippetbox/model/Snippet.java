@@ -9,21 +9,26 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
-public class User implements Persistable<String> {
+@Document(collection = "snippets")
+public class Snippet implements Persistable<String> {
     @Id
     private String id;
 
-    private String name;
+    private String title;
+
+    @DBRef
+    private User user;
+
+    private String snippet;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -31,23 +36,9 @@ public class User implements Persistable<String> {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-
     @Override
     @JsonIgnore
     public boolean isNew() {
         return createdAt == null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
     }
 }

@@ -111,7 +111,7 @@ public class UserControllerIntegrationTest {
         }
 
         @Test
-        void shouldReturnBadRequestIfUserIdIsInvalid() {
+        void shouldReturnNotFoundIfUserIdIsInvalid() {
             ResponseEntity<Void> response = restTemplate.getForEntity("/users/some-id", Void.class);
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -132,7 +132,7 @@ public class UserControllerIntegrationTest {
         }
 
         @Test
-        void shouldReturnBadRequestIfUserIdIsInvalid() {
+        void shouldReturnNotFoundIfUserIdIsInvalid() {
             ResponseEntity<String> response = restTemplate.exchange("/users/some-id", HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

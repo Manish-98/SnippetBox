@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorResponse handleNotFoundException(NotFoundException exception) {
         log.error("Exception occurred" + exception.getMessage(), exception);

@@ -28,12 +28,12 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable @UUID String userId) throws NotFoundException {
+    public User getUser(@PathVariable @UUID(message = "Invalid user id") String userId) throws NotFoundException {
         return userService.getUser(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable @UUID String userId) {
+    public void deleteUser(@PathVariable @UUID(message = "Invalid user id") String userId) {
         userService.deleteUser(userId);
     }
 }
