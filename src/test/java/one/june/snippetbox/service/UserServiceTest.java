@@ -20,7 +20,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,4 +76,23 @@ class UserServiceTest {
         }
     }
 
+    @Nested
+    class DeleteUser {
+
+        @Test
+        void shouldDeleteUserForGivenUserId() {
+            doNothing().when(userRepository).deleteById(anyString());
+
+            userService.deleteUser("0dcc45b6-7198-401c-85df-10765aac9a57");
+
+            verify(userRepository, times(1)).deleteById("0dcc45b6-7198-401c-85df-10765aac9a57");
+        }
+
+        @Test
+        void shouldPropagateExceptionThrownByRepository() {
+            doThrow(new IllegalArgumentException()).when(userRepository).deleteById(anyString());
+
+            assertThrows(IllegalArgumentException.class, () -> userService.deleteUser("0dcc45b6-7198-401c-85df-10765aac9a57"));
+        }
+    }
 }

@@ -18,8 +18,11 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerIntegrationTest {
@@ -27,12 +30,11 @@ public class UserControllerIntegrationTest {
             new MongoDBContainer("mongo:6.0.4");
 
     static {
-        mongoDBContainer.start(); // Start the container before all tests
+        mongoDBContainer.start();
     }
 
     @DynamicPropertySource
     static void configureMongoProperties(DynamicPropertyRegistry registry) {
-        // Override Spring Boot's MongoDB properties with Testcontainers' connection details
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
@@ -79,7 +81,7 @@ public class UserControllerIntegrationTest {
             ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            assertEquals("{\"errorCode\":\"user-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
+            assertEquals("{\"errorCode\":\"sb-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
         }
     }
 
@@ -106,6 +108,34 @@ public class UserControllerIntegrationTest {
                             .build(),
                     response.getBody()
             );
+        }
+
+        @Test
+        void shouldReturnBadRequestIfUserIdIsInvalid() {
+            ResponseEntity<Void> response = restTemplate.getForEntity("/users/some-id", Void.class);
+
+            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        }
+    }
+
+    @Nested
+    class DeleteUser {
+        @Test
+        void shouldDeleteUserWithGivenUserId() {
+            userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").name("Some name").build());
+
+            ResponseEntity<Void> response = restTemplate.exchange("/users/0dcc45b6-7198-401c-85df-10765aac9a57", HttpMethod.DELETE, HttpEntity.EMPTY, Void.class, Map.of());
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            Optional<User> user = userRepository.findById("0dcc45b6-7198-401c-85df-10765aac9a57");
+            assertTrue(user.isEmpty());
+        }
+
+        @Test
+        void shouldReturnBadRequestIfUserIdIsInvalid() {
+            ResponseEntity<String> response = restTemplate.exchange("/users/some-id", HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+
+            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
     }
 }

@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +64,25 @@ class UserControllerTest {
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> userController.getUser("0dcc45b6-7198-401c-85df-10765aac9a57"));
             assertEquals("User not found", exception.getMessage());
+        }
+    }
+
+    @Nested
+    class DeleteUser {
+        @Test
+        void shouldDeleteUserWithGivenId() {
+            doNothing().when(userService).deleteUser(anyString());
+
+            userController.deleteUser("0dcc45b6-7198-401c-85df-10765aac9a57");
+
+            verify(userService, times(1)).deleteUser("0dcc45b6-7198-401c-85df-10765aac9a57");
+        }
+
+        @Test
+        void shouldPropagateExceptionThrownByService() {
+            doThrow(new IllegalArgumentException()).when(userService).deleteUser(anyString());
+
+            assertThrows(IllegalArgumentException.class, () -> userController.deleteUser("0dcc45b6-7198-401c-85df-10765aac9a57"));
         }
     }
 }
