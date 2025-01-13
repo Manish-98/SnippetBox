@@ -49,7 +49,7 @@ public class SnippetControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").name("Test user").build());
+        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Test user").build());
         snippetRepository.deleteAll();
     }
 
@@ -72,7 +72,7 @@ public class SnippetControllerIntegrationTest {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             String expectedResponse = """
-                    {"title":"Snippet","user":{"id":"0dcc45b6-7198-401c-85df-10765aac9a57","name":"Test user"},"snippet":"Some code snippet"}""";
+                    {"title":"Snippet","user":{"id":"0dcc45b6-7198-401c-85df-10765aac9a57","username":"Test user"},"snippet":"Some code snippet"}""";
             JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
         }
 

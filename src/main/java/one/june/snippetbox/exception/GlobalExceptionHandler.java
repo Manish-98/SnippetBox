@@ -18,22 +18,30 @@ import java.util.List;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponse handleNotFoundException(NotFoundException exception) {
+        log.error("Exception occurred {}", exception.getMessage(), exception);
+        return ErrorResponse.builder().errorCode("sb-002").reasons(List.of(exception.getMessage())).build();
+    }
+
+
+    @ExceptionHandler(ExistingUserException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse handleExistingUserException(ExistingUserException exception) {
+        log.error("Exception occurred {}", exception.getMessage(), exception);
+        return ErrorResponse.builder().errorCode("sb-005").reasons(List.of(exception.getMessage())).build();
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        log.error("Exception occurred" + exception.getMessage(), exception);
+        log.error("Exception occurred {}", exception.getMessage(), exception);
         List<String> errors = exception.getBindingResult().getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
         return ErrorResponse.builder().errorCode("sb-001").reasons(errors).build();
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    public ErrorResponse handleNotFoundException(NotFoundException exception) {
-        log.error("Exception occurred" + exception.getMessage(), exception);
-        return ErrorResponse.builder().errorCode("sb-002").reasons(List.of(exception.getMessage())).build();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

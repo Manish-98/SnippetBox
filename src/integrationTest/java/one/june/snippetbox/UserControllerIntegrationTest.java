@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,49 +49,13 @@ public class UserControllerIntegrationTest {
     }
 
     @Nested
-    class NewUser {
-        @Test
-        void shouldCreateNewUser() {
-            String userRequest = """
-                    {
-                        "name": "Some name"
-                    }
-                    """;
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-            HttpEntity<String> request = new HttpEntity<>(userRequest, headers);
-
-            ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
-
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnBadRequestWhenUserNameIsInvalid() {
-            String userRequest = """
-                    {
-                        "name": "Invalid Name!"
-                    }
-                    """;
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-            HttpEntity<String> request = new HttpEntity<>(userRequest, headers);
-
-            ResponseEntity<String> response = restTemplate.exchange("/users", HttpMethod.POST, request, String.class);
-
-            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            assertEquals("{\"errorCode\":\"sb-001\",\"reasons\":[\"Username must contain only alphanumeric characters or underscore (A-Z, a-z, 0-9, _)\"]}", response.getBody());
-        }
-    }
-
-    @Nested
     class GetUser {
         @Test
         void shouldGetUserForGivenId() {
             userRepository.save(
                     User.builder()
                             .id("0dcc45b6-7198-401c-85df-10765aac9a57")
-                            .name("Some user")
+                            .username("Some user")
                             .build()
             );
 
@@ -102,7 +65,7 @@ public class UserControllerIntegrationTest {
             assertEquals(
                     User.builder()
                             .id("0dcc45b6-7198-401c-85df-10765aac9a57")
-                            .name("Some user")
+                            .username("Some user")
                             .createdAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0))
                             .updatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0))
                             .build(),
@@ -122,7 +85,7 @@ public class UserControllerIntegrationTest {
     class DeleteUser {
         @Test
         void shouldDeleteUserWithGivenUserId() {
-            userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").name("Some name").build());
+            userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some name").build());
 
             ResponseEntity<Void> response = restTemplate.exchange("/users/0dcc45b6-7198-401c-85df-10765aac9a57", HttpMethod.DELETE, HttpEntity.EMPTY, Void.class, Map.of());
 
