@@ -1,5 +1,6 @@
 package one.june.snippetbox;
 
+import one.june.snippetbox.common.JwtUtil;
 import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,16 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,25 +38,25 @@ public class UserControllerIntegrationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some user").build());
     }
 
     @Nested
     class GetUser {
         @Test
         void shouldGetUserForGivenId() {
-            userRepository.save(
-                    User.builder()
-                            .id("0dcc45b6-7198-401c-85df-10765aac9a57")
-                            .username("Some user")
-                            .build()
-            );
-
-            ResponseEntity<User> response = restTemplate.getForEntity("/users/0dcc45b6-7198-401c-85df-10765aac9a57", User.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
+            HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<User> response = restTemplate.exchange("/users/0dcc45b6-7198-401c-85df-10765aac9a57", HttpMethod.GET, requestEntity, User.class);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertEquals(
@@ -75,7 +72,10 @@ public class UserControllerIntegrationTest {
 
         @Test
         void shouldReturnNotFoundIfUserIdIsInvalid() {
-            ResponseEntity<Void> response = restTemplate.getForEntity("/users/some-id", Void.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
+            HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<Void> response = restTemplate.exchange("/users/some-id", HttpMethod.GET, requestEntity, Void.class);
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
@@ -85,9 +85,10 @@ public class UserControllerIntegrationTest {
     class DeleteUser {
         @Test
         void shouldDeleteUserWithGivenUserId() {
-            userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some name").build());
-
-            ResponseEntity<Void> response = restTemplate.exchange("/users/0dcc45b6-7198-401c-85df-10765aac9a57", HttpMethod.DELETE, HttpEntity.EMPTY, Void.class, Map.of());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
+            HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<Void> response = restTemplate.exchange("/users/0dcc45b6-7198-401c-85df-10765aac9a57", HttpMethod.DELETE, requestEntity, Void.class);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             Optional<User> user = userRepository.findById("0dcc45b6-7198-401c-85df-10765aac9a57");
@@ -96,7 +97,10 @@ public class UserControllerIntegrationTest {
 
         @Test
         void shouldReturnNotFoundIfUserIdIsInvalid() {
-            ResponseEntity<String> response = restTemplate.exchange("/users/some-id", HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
+            HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange("/users/some-id", HttpMethod.DELETE, requestEntity, String.class);
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }

@@ -49,7 +49,7 @@ public class SnippetControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Test user").build());
+        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some user").build());
         snippetRepository.deleteAll();
     }
 
@@ -66,13 +66,14 @@ public class SnippetControllerIntegrationTest {
                     """;
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
             HttpEntity<String> request = new HttpEntity<>(snippetRequest, headers);
 
             ResponseEntity<String> response = restTemplate.exchange("/snippets", HttpMethod.POST, request, String.class);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             String expectedResponse = """
-                    {"title":"Snippet","user":{"id":"0dcc45b6-7198-401c-85df-10765aac9a57","username":"Test user"},"snippet":"Some code snippet"}""";
+                    {"title":"Snippet","user":{"id":"0dcc45b6-7198-401c-85df-10765aac9a57","username":"Some user"},"snippet":"Some code snippet"}""";
             JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
         }
 
@@ -87,6 +88,7 @@ public class SnippetControllerIntegrationTest {
                     """;
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
             HttpEntity<String> request = new HttpEntity<>(snippetRequest, headers);
 
             ResponseEntity<String> response = restTemplate.exchange("/snippets", HttpMethod.POST, request, String.class);
@@ -108,6 +110,7 @@ public class SnippetControllerIntegrationTest {
                     """;
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
+            headers.setBearerAuth("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTb21lIHVzZXIiLCJpYXQiOjE3MzY3NjMwMjMsImV4cCI6MjA1MjEyMzAyM30.GZso9zcIEy4csW0H0fPYBONy62wiTT4WCL6RzVTLHQs");
             HttpEntity<String> request = new HttpEntity<>(snippetRequest, headers);
 
             ResponseEntity<String> response = restTemplate.exchange("/snippets", HttpMethod.POST, request, String.class);
