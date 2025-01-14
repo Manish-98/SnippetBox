@@ -15,7 +15,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable @UUID(message = "Invalid user id") String userId) throws NotFoundException {
-        return userService.getUser(userId);
+        return userService.getUserById(userId);
     }
 
     @DeleteMapping("/{userId}")

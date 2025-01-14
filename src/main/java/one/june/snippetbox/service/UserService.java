@@ -11,8 +11,12 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private UserRepository userRepository;
 
-    public User getUser(String userId) throws NotFoundException {
+    public User getUserById(String userId) throws NotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    public User getUserByUsername(String username) throws NotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public void deleteUser(String userId) {

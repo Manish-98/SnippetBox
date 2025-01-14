@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,8 @@ public class User implements Persistable<String>, UserDetails {
 
     @JsonIgnore
     private String password;
+
+    private List<Role> roles;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -59,7 +62,8 @@ public class User implements Persistable<String>, UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles.stream().map(it -> new SimpleGrantedAuthority("ROLE_" + it)).toList();
     }
 }

@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -32,7 +33,7 @@ class UserControllerTest {
         @Test
         void shouldReturnUserForGivenId() throws NotFoundException {
             String expectedUserId = "0dcc45b6-7198-401c-85df-10765aac9a57";
-            when(userService.getUser(anyString())).thenReturn(User.builder().username("User name").id(expectedUserId).build());
+            when(userService.getUserById(any())).thenReturn(User.builder().username("User name").id(expectedUserId).build());
 
             User user = userController.getUser("0dcc45b6-7198-401c-85df-10765aac9a57");
 
@@ -41,7 +42,7 @@ class UserControllerTest {
 
         @Test
         void shouldPropagateNotFoundException() throws NotFoundException {
-            when(userService.getUser(anyString())).thenThrow(new NotFoundException("User not found"));
+            when(userService.getUserById(any())).thenThrow(new NotFoundException("User not found"));
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> userController.getUser("0dcc45b6-7198-401c-85df-10765aac9a57"));
             assertEquals("User not found", exception.getMessage());

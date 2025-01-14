@@ -43,11 +43,14 @@ class SnippetServiceTest {
         void shouldReturnSnippetWhenCreationSuccessful() throws NotFoundException {
             try(MockedStatic<Utility> mockedUtility = mockStatic(Utility.class)) {
                 mockedUtility.when(Utility::uuid).thenReturn(UUID.fromString("0dcc45b6-7198-401c-85df-10765aac9a57"));
-                User user = User.builder().id("088907f1-dd98-4c46-a701-d1a0c70ac5d4").build();
-                when(userService.getUser(anyString())).thenReturn(user);
+                User user = User.builder().username("Test user").id("088907f1-dd98-4c46-a701-d1a0c70ac5d4").build();
+                when(userService.getUserByUsername(anyString())).thenReturn(user);
                 when(snippetRepository.save(any())).thenAnswer(answer -> answer.getArgument(0));
 
-                Snippet snippet = snippetService.newSnippet(NewSnippetRequest.builder().title("Snippet").userId("0dcc45b6-7198-401c-85df-10765aac9a57").build());
+                Snippet snippet = snippetService.newSnippet(
+                        NewSnippetRequest.builder().title("Snippet").build(),
+                        User.builder().username("Test user").password("password").build()
+                );
 
                 assertEquals(Snippet.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").user(user).title("Snippet").build(), snippet);
             }
@@ -55,11 +58,14 @@ class SnippetServiceTest {
 
         @Test
         void shouldThrowNotFoundExceptionIfUserNotFound() throws NotFoundException {
-            doThrow(new NotFoundException("User not found")).when(userService).getUser(anyString());
+            doThrow(new NotFoundException("User not found")).when(userService).getUserByUsername(any());
 
             NotFoundException exception = assertThrows(
                     NotFoundException.class,
-                    () -> snippetService.newSnippet(NewSnippetRequest.builder().userId("0dcc45b6-7198-401c-85df-10765aac9a57").build())
+                    () -> snippetService.newSnippet(
+                            NewSnippetRequest.builder().build(),
+                            User.builder().username("Test user").password("password").build()
+                    )
             );
 
             assertEquals("User not found", exception.getMessage());

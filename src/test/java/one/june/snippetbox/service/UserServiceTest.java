@@ -31,13 +31,13 @@ class UserServiceTest {
     private UserService userService;
 
     @Nested
-    class GetUser {
+    class GetUserById {
         @Test
         void shouldReturnUserForGivenId() throws NotFoundException {
             String userId = "0dcc45b6-7198-401c-85df-10765aac9a57";
             when(userRepository.findById(userId)).thenReturn(Optional.of(User.builder().username("User name").id(userId).build()));
 
-            User user = userService.getUser(userId);
+            User user = userService.getUserById(userId);
 
             assertEquals(User.builder().username("User name").id(userId).build(), user);
         }
@@ -47,7 +47,29 @@ class UserServiceTest {
             String userId = "0dcc45b6-7198-401c-85df-10765aac9a57";
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUser(userId));
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUserById(userId));
+            assertEquals("User not found", exception.getMessage());
+        }
+    }
+
+    @Nested
+    class GetUserByUsername {
+        @Test
+        void shouldReturnUserForGivenUsername() throws NotFoundException {
+            String name = "some name";
+            when(userRepository.findByUsername(name)).thenReturn(Optional.of(User.builder().username(name).build()));
+
+            User user = userService.getUserByUsername(name);
+
+            assertEquals(User.builder().username("some name").build(), user);
+        }
+
+        @Test
+        void shouldThrowNotFoundExceptionIfUserNotFoundForUserId() {
+            String username = "invalid user";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUserByUsername(username));
             assertEquals("User not found", exception.getMessage());
         }
     }

@@ -17,9 +17,8 @@ public class SnippetService {
     private UserService userService;
     private SnippetRepository snippetRepository;
 
-    public Snippet newSnippet(NewSnippetRequest newSnippetRequest) throws NotFoundException {
-        String userId = newSnippetRequest.getUserId();
-        User user = userService.getUser(userId);
+    public Snippet newSnippet(NewSnippetRequest newSnippetRequest, User authenticatedUser) throws NotFoundException {
+        User user = userService.getUserByUsername(authenticatedUser.getUsername());
 
         UUID snippetId = Utility.uuid();
 

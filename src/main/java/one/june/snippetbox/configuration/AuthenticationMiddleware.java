@@ -19,7 +19,7 @@ public class AuthenticationMiddleware {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
+        return username -> userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Invalid user"));
     }
 
     @Bean

@@ -3,6 +3,7 @@ package one.june.snippetbox.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +32,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleExistingUserException(ExistingUserException exception) {
+        log.error("Exception occurred {}", exception.getMessage(), exception);
+        return ErrorResponse.builder().errorCode("sb-005").reasons(List.of(exception.getMessage())).build();
+    }
+
+    @ExceptionHandler({UnauthorisedUserException.class, UsernameNotFoundException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorResponse handleExistingUserException(Exception exception) {
         log.error("Exception occurred {}", exception.getMessage(), exception);
         return ErrorResponse.builder().errorCode("sb-005").reasons(List.of(exception.getMessage())).build();
     }

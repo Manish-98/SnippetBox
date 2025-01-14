@@ -63,7 +63,7 @@ public class AuthenticationControllerIntegrationTest {
             JSONAssert.assertEquals("""
                     {
                       "username": "Some name",
-                      "authorities": [],
+                      "roles":["USER"],
                       "enabled": true,
                       "accountNonExpired": true,
                       "accountNonLocked": true,

@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import one.june.snippetbox.common.Utility;
 import one.june.snippetbox.controller.payload.RegisterUserRequest;
 import one.june.snippetbox.exception.ExistingUserException;
+import one.june.snippetbox.model.Role;
 import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +29,7 @@ public class AuthenticationService {
                 .id(userId.toString())
                 .username(registerUserRequest.getUsername())
                 .password(passwordEncoder.encode(registerUserRequest.getPassword()))
+                .roles(List.of(Role.USER))
                 .build();
         return userRepository.save(newUser);
     }

@@ -1,6 +1,7 @@
 package one.june.snippetbox;
 
 import one.june.snippetbox.common.JwtUtil;
+import one.june.snippetbox.model.Role;
 import one.june.snippetbox.model.User;
 import one.june.snippetbox.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,7 +48,7 @@ public class UserControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some user").build());
+        userRepository.save(User.builder().id("0dcc45b6-7198-401c-85df-10765aac9a57").username("Some user").roles(List.of(Role.USER)).build());
     }
 
     @Nested
